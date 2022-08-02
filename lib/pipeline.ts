@@ -4,12 +4,17 @@ import { Pipeline, Artifact } from "aws-cdk-lib/aws-codepipeline";
 import { GitHubSourceAction, CodeBuildAction } from "aws-cdk-lib/aws-codepipeline-actions";
 import { PipelineProject, LinuxBuildImage, BuildSpec } from "aws-cdk-lib/aws-codebuild";
 
-export class LambdaDynamoStack extends Stack {
+export class MyPipeline extends Stack {
+
+  private readonly pipeline: Pipeline;
+  private readonly cdkBuildOutput: Artifact;
+  //private readonly serviceBuildOutput: Artifact;
+
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
 
-    const pipeline = new Pipeline(this, 'MyFirstPipeline', {
+    this.pipeline = new Pipeline(this, 'MyFirstPipeline', {
       pipelineName: 'MyPipeline',
       crossAccountKeys: false
     });
@@ -17,7 +22,7 @@ export class LambdaDynamoStack extends Stack {
     const sourceOutput = new Artifact('SourceOutput');
 
 
-    pipeline.addStage({
+    this.pipeline.addStage({
       stageName: 'Source',
       actions: [
         new GitHubSourceAction({
@@ -31,14 +36,14 @@ export class LambdaDynamoStack extends Stack {
       ]
     });
 
-    const cdkBuildOutput = new Artifact('cdkBuildOutput');
+    this.cdkBuildOutput = new Artifact('cdkBuildOutput');
 
-    pipeline.addStage({
+    this.pipeline.addStage({
       stageName: "Build",
       actions: [new CodeBuildAction({
         actionName: "CDK_build",
         input: sourceOutput,
-        outputs: [cdkBuildOutput],
+        outputs: [this.cdkBuildOutput],
         project: new PipelineProject(this, 'CdkBuildProject', {
           environment: {
             buildImage: LinuxBuildImage.STANDARD_6_0
