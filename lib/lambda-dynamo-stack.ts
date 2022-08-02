@@ -29,7 +29,7 @@ export class LambdaDynamoStack extends Stack {
     actions: [
       new GitHubSourceAction({
         owner: 'yomex4life',
-        repo: 'aws-pipeline',
+        repo: 'lambda-dynamo',
         branch: 'master',
         actionName: 'Pipeline_Source',
         oauthToken: SecretValue.secretsManager('github-pipeline-token'),
